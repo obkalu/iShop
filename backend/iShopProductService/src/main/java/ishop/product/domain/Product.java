@@ -1,5 +1,9 @@
 package ishop.product.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -7,13 +11,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.Id;
 
@@ -22,7 +29,7 @@ import javax.persistence.Id;
 public class Product {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonIgnore
+	//@JsonIgnore
 	private Long id;
 
 	@NotBlank
@@ -46,9 +53,19 @@ public class Product {
 	@JoinColumn(name = "stock_id")
 	private Stock stock;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id")
 	private Category category;
+	
+	@JsonInclude()
+	@Transient
+	private Long categoryId;
+	
+	
+
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<ProductImage> productImages = new ArrayList<ProductImage>();
 
 	public Product() {
 	}
@@ -108,6 +125,29 @@ public class Product {
 
 	public void setStock(Stock stock) {
 		this.stock = stock;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
+	public List<ProductImage> getProductImages() {
+		return productImages;
+	}
+
+	public void setProductImages(List<ProductImage> productImages) {
+		this.productImages = productImages;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+	public Long getCategoryId() {
+		return this.category.getId();
 	}
 
 }
